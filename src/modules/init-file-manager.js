@@ -1,10 +1,11 @@
 import { pipeline } from 'stream';
 import { executeCommandStream } from './execute-command-stream.js';
 import { welcomeUser } from './welcome-user.js';
+import { showCurrentPath } from '../lib/utils/show-current-path.js';
 import { exit } from './exit.js';
 import { write } from '../lib/utils/write.js';
 import { throwError } from '../lib/utils/throw-error.js';
-import { STOP_COMMAND, HOME_DIRECTORY } from '../lib/constants';
+import { STOP_COMMAND, HOME_DIRECTORY } from '../lib/constants/index.js';
 
 export const initFileManager = async () => {
     const readable = process.stdin;
@@ -12,10 +13,10 @@ export const initFileManager = async () => {
 
     welcomeUser();
 
-    write(`
-Just type any command in console, press Enter, and operation would be completed
-Your current path is "${HOME_DIRECTORY}"
-If you would like to exit, press "Ctrl/Cmd + C" or type "${STOP_COMMAND}" on a new line and press Enter
+    showCurrentPath(HOME_DIRECTORY);
+
+    write(`If you would like to exit, press "Ctrl + C" or type "${STOP_COMMAND}" on a new line and press Enter
+Type "help" or ".help" to get commands list
     `);
 
     pipeline(readable, executeCommandStream, writable, (error) => {
