@@ -1,4 +1,5 @@
 import { STOP_COMMAND } from '../lib/constants/index.js';
+import { showCurrentPath } from '../lib/utils/show-current-path.js';
 
 class Record {
     constructor(command, description) {
@@ -7,7 +8,7 @@ class Record {
     }
 }
 
-export const help = () => {
+export const help = (currentPath) => {
     const helpData = {};
 
     helpData.start = new Record(
@@ -90,4 +91,6 @@ export const help = () => {
     helpData.help = new Record('help or .help', 'Show this commands table');
 
     console.table(helpData);
+
+    showCurrentPath(currentPath);
 };

@@ -9,13 +9,13 @@ export const checkFileExist = (path, onExist, onNotExist) => {
     try {
         stat(path, (error, stats) => {
             if (error || stats.isDirectory()) {
-                throwErrorNoFile(path);
+                // throwErrorNoFile(path);
                 onNotExist?.({ path, stats });
             } else {
                 onExist?.({ path, stats });
             }
         });
     } catch (error) {
-        throwErrorNoFile(path, error);
+        throwErrorNoFile({ path, error });
     }
 };

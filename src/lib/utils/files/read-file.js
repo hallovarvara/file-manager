@@ -4,6 +4,7 @@ import { showCurrentPath } from '../show-current-path.js';
 import { handleFileData } from './handle-file-data.js';
 import { checkFileExist } from './check-file-exist.js';
 import { resolvePath } from '../resolve-path.js';
+import { throwErrorNoFile } from './throw-error-no-file.js';
 
 export const readFile = async ({ filename: filenameRaw, directory }) => {
     const filename = removeQuotesFromPath(filenameRaw);
@@ -20,6 +21,8 @@ export const readFile = async ({ filename: filenameRaw, directory }) => {
                 () => showCurrentPath(directory),
             );
         },
-        () => showCurrentPath(directory),
+        () => {
+            throwErrorNoFile({ path: filePath, currentPath: directory });
+        },
     );
 };

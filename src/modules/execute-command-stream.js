@@ -13,6 +13,8 @@ import { copy } from './files/copy.js';
 import { move } from './files/move.js';
 import { remove } from './files/remove.js';
 import { hash } from './files/hash.js';
+import { compress } from './files/compress.js';
+import { decompress } from './files/decompress.js';
 import { executeOsFunctionByArgument } from './execute-os-function-by-argument.js';
 import { STOP_COMMAND, HOME_DIRECTORY } from '../lib/constants/index.js';
 
@@ -25,8 +27,7 @@ export const executeCommandStream = new Transform({
         if (command === STOP_COMMAND) {
             exit();
         } else if (command === 'help' || command === '.help') {
-            help();
-            showCurrentPath(currentPath);
+            help(currentPath);
         } else if (command === 'up') {
             currentPath = goUpAndGetPath(currentPath);
         } else if (command === 'ls') {
@@ -49,6 +50,10 @@ export const executeCommandStream = new Transform({
             await executeOsFunctionByArgument(command, currentPath);
         } else if (command.startsWith('hash')) {
             await hash(command, currentPath);
+        } else if (command.startsWith('compress')) {
+            await compress(command, currentPath);
+        } else if (command.startsWith('decompress')) {
+            await decompress(command, currentPath);
         } else {
             throwError({ isInputInvalid: true });
             showCurrentPath(currentPath);

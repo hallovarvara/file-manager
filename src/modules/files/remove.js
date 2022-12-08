@@ -3,6 +3,5 @@ import { removeFile } from '../../lib/utils/files/remove-file.js';
 
 export const remove = async (command, currentPath) => {
     const [, filePath = ''] = getCommandAttributes(command);
-
     await removeFile({ currentPath, filePath });
 };

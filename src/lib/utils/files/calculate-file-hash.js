@@ -5,6 +5,7 @@ import { showCurrentPath } from '../show-current-path.js';
 import { checkFileExist } from './check-file-exist.js';
 import { resolvePath } from '../resolve-path.js';
 import { handleFileData } from './handle-file-data.js';
+import { throwErrorNoFile } from './throw-error-no-file.js';
 
 export const calculateFileHash = async ({ currentPath, filename }) => {
     const filePath = resolvePath(currentPath, filename);
@@ -38,7 +39,7 @@ export const calculateFileHash = async ({ currentPath, filename }) => {
             );
         },
         () => {
-            showCurrentPath(currentPath);
+            throwErrorNoFile({ path: filePath, currentPath });
         },
     );
 };
