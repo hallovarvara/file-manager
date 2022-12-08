@@ -1,9 +1,11 @@
 import { write } from './write.js';
+import { showCurrentPath } from './show-current-path.js';
 
 export const throwError = ({
     isOperationFailed,
     isInputInvalid,
     error,
+    currentPath,
 } = undefined) => {
     let errorMessage = 'Unknown error';
 
@@ -20,4 +22,8 @@ export const throwError = ({
     }
 
     write(errorMessage);
+
+    if (currentPath) {
+        showCurrentPath(currentPath);
+    }
 };

@@ -1,8 +1,8 @@
-import { resolvePath } from '../lib/utils/resolve-path.js';
+import { resolvePathWithExistenceCheck } from '../lib/utils/resolve-path-with-existence-check.js';
 import { showCurrentPath } from '../lib/utils/show-current-path.js';
 
 export const goUpAndGetPath = (currentPath) => {
-    const newPath = resolvePath(currentPath, '..');
+    const newPath = resolvePathWithExistenceCheck(currentPath, '..');
     showCurrentPath(newPath);
     return newPath;
 };

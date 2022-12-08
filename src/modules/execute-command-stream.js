@@ -12,6 +12,7 @@ import { rename } from './files/rename.js';
 import { copy } from './files/copy.js';
 import { move } from './files/move.js';
 import { remove } from './files/remove.js';
+import { hash } from './files/hash.js';
 import { executeOsFunctionByArgument } from './execute-os-function-by-argument.js';
 import { STOP_COMMAND, HOME_DIRECTORY } from '../lib/constants/index.js';
 
@@ -46,6 +47,8 @@ export const executeCommandStream = new Transform({
             await remove(command, currentPath);
         } else if (command.startsWith('os')) {
             await executeOsFunctionByArgument(command, currentPath);
+        } else if (command.startsWith('hash')) {
+            await hash(command, currentPath);
         } else {
             throwError({ isInputInvalid: true });
             showCurrentPath(currentPath);

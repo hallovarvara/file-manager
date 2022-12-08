@@ -1,19 +1,14 @@
 import { existsSync, unlink } from 'fs';
-import { isAbsolute, resolve } from 'path';
 import { throwError } from '../throw-error.js';
 import { write } from '../write.js';
-import { removeQuotesFromPath } from '../remove-quotes-from-path.js';
 import { showCurrentPath } from '../show-current-path.js';
+import { resolvePath } from '../resolve-path.js';
 
 export const removeFile = async ({
     currentPath = '',
     filePath: filePathRaw = '',
 }) => {
-    const filePathString = removeQuotesFromPath(filePathRaw);
-
-    const filePath = isAbsolute(filePathString)
-        ? filePathString
-        : resolve(currentPath, filePathString);
+    const filePath = resolvePath(currentPath, filePathRaw);
 
     if (!existsSync(filePath)) {
         throwError({
@@ -21,6 +16,7 @@ export const removeFile = async ({
             error: {
                 message: `No file found by path "${filePath}"`,
             },
+            currentPath,
         });
         return;
     }
@@ -30,6 +26,7 @@ export const removeFile = async ({
             throwError({
                 isOperationFailed: true,
                 error: unlinkErr,
+                currentPath,
             });
             return;
         }

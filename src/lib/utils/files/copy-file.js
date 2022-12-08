@@ -1,11 +1,12 @@
 import { existsSync } from 'fs';
-import { isAbsolute, resolve } from 'path';
 import { throwError } from '../throw-error.js';
 import { isString } from '../is-string.js';
 import { write } from '../write.js';
 import { removeQuotesFromPath } from '../remove-quotes-from-path.js';
 import { showCurrentPath } from '../show-current-path.js';
 import { handleCopyFile } from './handle-copy-file.js';
+import { resolvePath } from '../resolve-path.js';
+import { throwErrorNoFile } from './throw-error-no-file.js';
 
 export const copyFile = async ({
     currentPath = '',
@@ -13,11 +14,8 @@ export const copyFile = async ({
     newDirectoryName = '',
 }) => {
     const filename = removeQuotesFromPath(filenameRaw);
-    const filePath = resolve(currentPath, filename);
-
-    const newDirectory = isAbsolute(newDirectoryName)
-        ? newDirectoryName
-        : resolve(currentPath, newDirectoryName);
+    const filePath = resolvePath(currentPath, filename);
+    const newDirectory = resolvePath(currentPath, newDirectoryName);
 
     if (!isString(filePath) || filename === '') {
         throwError({
@@ -39,16 +37,11 @@ export const copyFile = async ({
     }
 
     if (!existsSync(filePath)) {
-        throwError({
-            isOperationFailed: true,
-            error: {
-                message: `No file "${filename}" found in current folder`,
-            },
-        });
+        throwErrorNoFile({ path: filename });
         return;
     }
 
-    const newFilePath = resolve(newDirectory, filename);
+    const newFilePath = resolvePath(newDirectory, filename);
 
     if (existsSync(newFilePath)) {
         throwError({

@@ -1,8 +1,9 @@
 import { existsSync, rename } from 'fs';
-import { resolve } from 'path';
 import { throwError } from '../throw-error.js';
 import { write } from '../write.js';
 import { removeQuotesFromPath } from '../remove-quotes-from-path.js';
+import { resolvePath } from '../resolve-path.js';
+import { showCurrentPath } from '../show-current-path.js';
 
 export const renameFile = async ({
     directory,
@@ -16,6 +17,7 @@ export const renameFile = async ({
                 message:
                     'No "directory" argument passed, please try to restart file-manager',
             },
+            currentPath: directory,
         });
         return;
     }
@@ -27,13 +29,14 @@ export const renameFile = async ({
                 message:
                     'Please, pass "filename" and "newFilename" in command in this format:\nrn filename newFilename',
             },
+            currentPath: directory,
         });
         return;
     }
 
     const filename = removeQuotesFromPath(filenameRaw);
     const newFilename = removeQuotesFromPath(newFilenameRaw);
-    const filePath = resolve(directory, filename);
+    const filePath = resolvePath(directory, filename);
 
     if (!existsSync(filePath)) {
         throwError({
@@ -41,11 +44,12 @@ export const renameFile = async ({
             error: {
                 message: `Nothing to rename. File "${filename}" doesn't exist in "${directory}" directory`,
             },
+            currentPath: directory,
         });
         return;
     }
 
-    const newFilePath = resolve(directory, newFilename);
+    const newFilePath = resolvePath(directory, newFilename);
 
     if (existsSync(newFilePath)) {
         throwError({
@@ -53,6 +57,7 @@ export const renameFile = async ({
             error: {
                 message: `Pass another new filename. File "${newFilename}" already exists in "${directory}" directory`,
             },
+            currentPath: directory,
         });
         return;
     }
@@ -62,6 +67,7 @@ export const renameFile = async ({
             throwError({
                 isOperationFailed: true,
                 error: renameErr,
+                currentPath: directory,
             });
             return;
         }
@@ -69,5 +75,7 @@ export const renameFile = async ({
         write(
             `File "${filename}" was successfully renamed to "${newFilename}"`,
         );
+
+        showCurrentPath(directory);
     });
 };
