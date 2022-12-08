@@ -12,6 +12,7 @@ import { rename } from './files/rename.js';
 import { copy } from './files/copy.js';
 import { move } from './files/move.js';
 import { remove } from './files/remove.js';
+import { executeOsFunctionByArgument } from './execute-os-function-by-argument.js';
 import { STOP_COMMAND, HOME_DIRECTORY } from '../lib/constants/index.js';
 
 let currentPath = HOME_DIRECTORY;
@@ -43,6 +44,8 @@ export const executeCommandStream = new Transform({
             await move(command, currentPath);
         } else if (command.startsWith('rm')) {
             await remove(command, currentPath);
+        } else if (command.startsWith('os')) {
+            await executeOsFunctionByArgument(command, currentPath);
         } else {
             throwError({ isInputInvalid: true });
             showCurrentPath(currentPath);
