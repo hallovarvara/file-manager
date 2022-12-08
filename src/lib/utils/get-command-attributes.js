@@ -1,1 +1,1 @@
-export const getCommandAttributes = (command = '') => command.split(' ');
+export const getCommandAttributes = (command = '') => command?.split(' ');
