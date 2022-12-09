@@ -1,21 +1,25 @@
 import { stat } from 'fs';
 import { throwErrorNoFile } from './throw-error-no-file.js';
 
-export const checkFileExist = (path, onExist, onNotExist) => {
+export const checkFileExist = (
+    path,
+    onExist,
+    onNotExist,
+    isDirectory = false,
+) => {
     if (!path) {
-        throwErrorNoFile();
+        throwErrorNoFile({ isDirectory });
     }
 
     try {
         stat(path, (error, stats) => {
-            if (error || stats.isDirectory()) {
-                // throwErrorNoFile(path);
+            if (error || (isDirectory ? stats.isFile() : !stats.isFile())) {
                 onNotExist?.({ path, stats });
             } else {
                 onExist?.({ path, stats });
             }
         });
     } catch (error) {
-        throwErrorNoFile({ path, error });
+        throwErrorNoFile({ path, error, isDirectory });
     }
 };

@@ -1,9 +1,11 @@
-import { existsSync, rename } from 'fs';
+import { rename } from 'fs';
 import { throwError } from '../throw-error.js';
 import { write } from '../write.js';
 import { removeQuotesFromPath } from '../remove-quotes-from-path.js';
 import { resolvePath } from '../resolve-path.js';
 import { showCurrentPath } from '../show-current-path.js';
+import { checkFileExist } from './check-file-exist.js';
+import { throwErrorNoFile } from './throw-error-no-file.js';
 
 export const renameFile = async ({
     directory,
@@ -13,10 +15,7 @@ export const renameFile = async ({
     if (!directory) {
         throwError({
             isOperationFailed: true,
-            error: {
-                message:
-                    'No "directory" argument passed, please try to restart file-manager',
-            },
+            error: { message: 'No "directory" argument passed' },
             currentPath: directory,
         });
         return;
@@ -38,44 +37,44 @@ export const renameFile = async ({
     const newFilename = removeQuotesFromPath(newFilenameRaw);
     const filePath = resolvePath(directory, filename);
 
-    if (!existsSync(filePath)) {
-        throwError({
-            isOperationFailed: true,
-            error: {
-                message: `Nothing to rename. File "${filename}" doesn't exist in "${directory}" directory`,
-            },
-            currentPath: directory,
-        });
-        return;
-    }
+    checkFileExist(
+        filePath,
+        () => {
+            const newFilePath = resolvePath(directory, newFilename);
 
-    const newFilePath = resolvePath(directory, newFilename);
+            checkFileExist(
+                newFilePath,
+                () => {
+                    throwError({
+                        isOperationFailed: true,
+                        error: {
+                            message: `File "${newFilename}" already exists in directory "${directory}"`,
+                        },
+                        currentPath: directory,
+                    });
+                },
+                () => {
+                    rename(filePath, newFilePath, (renameErr) => {
+                        if (renameErr) {
+                            throwError({
+                                isOperationFailed: true,
+                                error: renameErr,
+                                currentPath: directory,
+                            });
+                            return;
+                        }
 
-    if (existsSync(newFilePath)) {
-        throwError({
-            isOperationFailed: true,
-            error: {
-                message: `Pass another new filename. File "${newFilename}" already exists in "${directory}" directory`,
-            },
-            currentPath: directory,
-        });
-        return;
-    }
+                        write(
+                            `File "${filename}" was successfully renamed to "${newFilename}"`,
+                        );
 
-    rename(filePath, newFilePath, (renameErr) => {
-        if (renameErr) {
-            throwError({
-                isOperationFailed: true,
-                error: renameErr,
-                currentPath: directory,
-            });
-            return;
-        }
-
-        write(
-            `File "${filename}" was successfully renamed to "${newFilename}"`,
-        );
-
-        showCurrentPath(directory);
-    });
+                        showCurrentPath(directory);
+                    });
+                },
+            );
+        },
+        () => {
+            throwErrorNoFile({ path: filePath, currentPath: directory });
+        },
+    );
 };

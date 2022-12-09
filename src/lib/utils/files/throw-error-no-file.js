@@ -1,7 +1,7 @@
 import { throwError } from '../throw-error.js';
 
 export const throwErrorNoFile = (props) => {
-    const { path, error, currentPath } = props || {};
+    const { path, error, currentPath, isDirectory } = props || {};
 
     throwError({
         isOperationFailed: true,
@@ -9,7 +9,9 @@ export const throwErrorNoFile = (props) => {
             ? error
             : {
                   message: path
-                      ? `No file "${path}" found`
+                      ? `No ${
+                            isDirectory ? 'directory' : 'file'
+                        } "${path}" found`
                       : 'Specify correct path',
               },
         currentPath,

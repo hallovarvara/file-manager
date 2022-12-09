@@ -1,8 +1,7 @@
-import { readdir, lstatSync } from 'fs';
-import { resolve } from 'path';
+import { readdir } from 'fs';
 import { throwError } from '../lib/utils/throw-error.js';
-import { showCurrentPath } from '../lib/utils/show-current-path.js';
 import { sortRecordsAlphabetically } from '../lib/utils/sort-records-alphabetically.js';
+import { showCurrentPath } from '../lib/utils/show-current-path.js';
 
 class Record {
     constructor(name, type) {
@@ -11,31 +10,48 @@ class Record {
     }
 }
 
-export const getDirectoryContentList = async (path) => {
-    await readdir(path, (readdirErr, entities) => {
-        if (readdirErr) {
-            throwError({ isOperationFailed: true, error: readdirErr });
-            return;
-        }
+export const getDirectoryContentList = (currentPath) => {
+    readdir(
+        currentPath,
+        { withFileTypes: true },
+        async (readdirErr, entities) => {
+            if (readdirErr) {
+                throwError({
+                    isOperationFailed: true,
+                    error: readdirErr,
+                    currentPath,
+                });
 
-        if (entities?.length === 0) {
-            throwError({ error: { message: `Folder "${path}" is empty` } });
-        } else {
-            const files = [];
-            const directories = [];
+                return;
+            }
 
-            entities.forEach((name) => {
-                const isFile = lstatSync(resolve(path, name)).isFile();
-                const record = new Record(name, isFile ? 'file' : 'directory');
-                (isFile ? files : directories).push(record);
-            });
+            if (entities?.length === 0) {
+                throwError({
+                    error: { message: `Folder "${currentPath}" is empty` },
+                    currentPath,
+                });
+            } else {
+                const files = [];
+                const directories = [];
 
-            console.table([
-                ...sortRecordsAlphabetically(directories, 'Name'),
-                ...sortRecordsAlphabetically(files, 'Name'),
-            ]);
-        }
+                entities.forEach((entity) => {
+                    const isFile = entity.isFile();
 
-        showCurrentPath(path);
-    });
+                    const record = new Record(
+                        entity.name,
+                        isFile ? 'file' : 'directory',
+                    );
+
+                    (isFile ? files : directories).push(record);
+                });
+
+                console.table([
+                    ...sortRecordsAlphabetically(directories, 'Name'),
+                    ...sortRecordsAlphabetically(files, 'Name'),
+                ]);
+
+                showCurrentPath(currentPath);
+            }
+        },
+    );
 };

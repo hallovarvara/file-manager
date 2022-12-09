@@ -1,4 +1,3 @@
-import { existsSync } from 'fs';
 import { throwError } from '../throw-error.js';
 import { isString } from '../is-string.js';
 import { write } from '../write.js';
@@ -7,6 +6,7 @@ import { showCurrentPath } from '../show-current-path.js';
 import { handleCopyFile } from './handle-copy-file.js';
 import { resolvePath } from '../resolve-path.js';
 import { throwErrorNoFile } from './throw-error-no-file.js';
+import { checkFileExist } from './check-file-exist.js';
 
 export const copyFile = async ({
     currentPath = '',
@@ -24,48 +24,64 @@ export const copyFile = async ({
         });
         return;
     }
-    if (!isString(newDirectory) || !existsSync(newDirectory)) {
-        throwError({
-            isOperationFailed: true,
-            error: {
-                message: `Incorrect directory name "${
-                    newDirectory || ''
-                }" passed. Pass correct directory name`,
-            },
-        });
-        return;
-    }
 
-    if (!existsSync(filePath)) {
-        throwErrorNoFile({ path: filename });
-        return;
-    }
+    checkFileExist(
+        newDirectory,
+        () => {
+            checkFileExist(
+                filePath,
+                () => {
+                    const newFilePath = resolvePath(newDirectory, filename);
 
-    const newFilePath = resolvePath(newDirectory, filename);
+                    checkFileExist(
+                        newFilePath,
+                        () => {
+                            throwError({
+                                isOperationFailed: true,
+                                error: {
+                                    message: `File "${filename}" already exists in directory "${newDirectory}"`,
+                                },
+                                currentPath,
+                            });
+                        },
+                        () => {
+                            handleCopyFile({
+                                filePath,
+                                newFilePath,
+                                callback: (err) => {
+                                    if (err) {
+                                        throwError({
+                                            isOperationFailed: true,
+                                            error: err,
+                                        });
+                                    } else {
+                                        write(
+                                            `File "${filename}" was successfully copied to "${newDirectory}" folder`,
+                                        );
 
-    if (existsSync(newFilePath)) {
-        throwError({
-            isOperationFailed: true,
-            error: {
-                message: `File "${filename}" already exists in directory "${newDirectory}"`,
-            },
-        });
-        return;
-    }
-
-    handleCopyFile({
-        filePath,
-        newFilePath,
-        callback: (err) => {
-            if (err) {
-                throwError({ isOperationFailed: true, error: err });
-            } else {
-                write(
-                    `File "${filename}" was successfully copied to "${newDirectory}" folder`,
-                );
-
-                showCurrentPath(currentPath);
-            }
+                                        showCurrentPath(currentPath);
+                                    }
+                                },
+                            });
+                        },
+                    );
+                },
+                () => {
+                    throwErrorNoFile({ path: filename });
+                },
+            );
         },
-    });
+        () => {
+            throwError({
+                isOperationFailed: true,
+                error: {
+                    message: `Incorrect directory name "${
+                        newDirectory || ''
+                    }" passed. Pass correct directory name`,
+                },
+                currentPath,
+            });
+        },
+        true,
+    );
 };

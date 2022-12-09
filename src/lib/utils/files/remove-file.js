@@ -1,8 +1,9 @@
-import { existsSync, unlink } from 'fs';
+import { unlink } from 'fs';
 import { throwError } from '../throw-error.js';
 import { write } from '../write.js';
 import { showCurrentPath } from '../show-current-path.js';
 import { resolvePath } from '../resolve-path.js';
+import { checkFileExist } from './check-file-exist.js';
 
 export const removeFile = async ({
     currentPath = '',
@@ -10,29 +11,33 @@ export const removeFile = async ({
 }) => {
     const filePath = resolvePath(currentPath, filePathRaw);
 
-    if (!existsSync(filePath)) {
-        throwError({
-            isOperationFailed: true,
-            error: {
-                message: `No file found by path "${filePath}"`,
-            },
-            currentPath,
-        });
-        return;
-    }
+    checkFileExist(
+        filePath,
+        async () => {
+            await unlink(filePath, (unlinkErr) => {
+                if (unlinkErr) {
+                    throwError({
+                        isOperationFailed: true,
+                        error: unlinkErr,
+                        currentPath,
+                    });
 
-    await unlink(filePath, (unlinkErr) => {
-        if (unlinkErr) {
+                    return;
+                }
+
+                write(`File "${filePath}" was successfully removed`);
+
+                showCurrentPath(currentPath);
+            });
+        },
+        () => {
             throwError({
                 isOperationFailed: true,
-                error: unlinkErr,
+                error: {
+                    message: `No file found by path "${filePath}"`,
+                },
                 currentPath,
             });
-            return;
-        }
-
-        write(`File "${filePath}" was successfully removed`);
-
-        showCurrentPath(currentPath);
-    });
+        },
+    );
 };
