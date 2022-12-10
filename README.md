@@ -19,8 +19,8 @@ npm run start -- --username=jane_doe
 ## Commands
 
 | command                                       | action                                                                                                  |
-|-----------------------------------------------|---------------------------------------------------------------------------------------------------------|
-| `.exit`                                       | Exit from CLI File Manager                                                                              |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `.exit` or press "Ctrl + C"                   | Exit from CLI File Manager                                                                              |
 | `.help` or `help`                             | Commands listing                                                                                        |
 | `up`                                          | Go upper from current directory                                                                         |
 | `cd path_to_directory`                        | Go to dedicated folder from current directory (`path_to_directory` can be relative or absolute)         |
