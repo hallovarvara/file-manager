@@ -18,20 +18,20 @@ export const createFile = async ({ directory, filename: filenameRaw }) => {
                 error: {
                     message: `File "${filename}" already exists in directory "${directory}"`,
                 },
-                currentPath: directory,
+                showCurrentPath: true,
             });
         },
         () => {
-            writeFile(filePath, '', { encoding: 'utf-8' }, (writeErr) => {
-                if (writeErr) {
-                    throwError({ isOperationFailed: true, error: writeErr });
+            writeFile(filePath, '', { encoding: 'utf-8' }, (error) => {
+                if (error) {
+                    throwError({ isOperationFailed: true, error });
                 }
 
                 write(
                     `File "${filename}" was successfully created in "${directory}" directory`,
                 );
 
-                showCurrentPath(directory);
+                showCurrentPath();
             });
         },
     );

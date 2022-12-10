@@ -18,11 +18,11 @@ export const readFile = async ({ filename: filenameRaw, directory }) => {
                 (data) => {
                     write(data);
                 },
-                () => showCurrentPath(directory),
+                showCurrentPath,
             );
         },
         () => {
-            throwErrorNoFile({ path: filePath, currentPath: directory });
+            throwErrorNoFile({ path: filePath, showCurrentPath: true });
         },
     );
 };

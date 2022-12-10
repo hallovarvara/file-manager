@@ -16,7 +16,7 @@ export const renameFile = async ({
         throwError({
             isOperationFailed: true,
             error: { message: 'No "directory" argument passed' },
-            currentPath: directory,
+            showCurrentPath: true,
         });
         return;
     }
@@ -28,7 +28,7 @@ export const renameFile = async ({
                 message:
                     'Please, pass "filename" and "newFilename" in command in this format:\nrn filename newFilename',
             },
-            currentPath: directory,
+            showCurrentPath: true,
         });
         return;
     }
@@ -50,16 +50,16 @@ export const renameFile = async ({
                         error: {
                             message: `File "${newFilename}" already exists in directory "${directory}"`,
                         },
-                        currentPath: directory,
+                        showCurrentPath: true,
                     });
                 },
                 () => {
-                    rename(filePath, newFilePath, (renameErr) => {
-                        if (renameErr) {
+                    rename(filePath, newFilePath, (error) => {
+                        if (error) {
                             throwError({
                                 isOperationFailed: true,
-                                error: renameErr,
-                                currentPath: directory,
+                                showCurrentPath: true,
+                                error,
                             });
                             return;
                         }
@@ -68,13 +68,13 @@ export const renameFile = async ({
                             `File "${filename}" was successfully renamed to "${newFilename}"`,
                         );
 
-                        showCurrentPath(directory);
+                        showCurrentPath();
                     });
                 },
             );
         },
         () => {
-            throwErrorNoFile({ path: filePath, currentPath: directory });
+            throwErrorNoFile({ path: filePath });
         },
     );
 };

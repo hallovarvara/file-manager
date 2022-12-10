@@ -7,7 +7,7 @@ import { getSystemArchitecture } from '../lib/utils/os/get-system-architecture.j
 import { throwError } from '../lib/utils/throw-error.js';
 import { showCurrentPath } from '../lib/utils/show-current-path.js';
 
-export const executeOsFunctionByArgument = (command, currentPath) => {
+export const executeOsFunctionByArgument = (command) => {
     const [, arg] = getCommandAttributes(command);
 
     switch (arg) {
@@ -30,5 +30,5 @@ export const executeOsFunctionByArgument = (command, currentPath) => {
             throwError({ isInputInvalid: true });
     }
 
-    showCurrentPath(currentPath);
+    showCurrentPath();
 };

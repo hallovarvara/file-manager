@@ -5,7 +5,7 @@ export const throwError = ({
     isOperationFailed,
     isInputInvalid,
     error,
-    currentPath,
+    showCurrentPath: shouldShowCurrentPath,
 } = undefined) => {
     let errorMessage = 'Unknown error';
 
@@ -23,7 +23,7 @@ export const throwError = ({
 
     write(errorMessage);
 
-    if (currentPath) {
-        showCurrentPath(currentPath);
+    if (shouldShowCurrentPath) {
+        showCurrentPath();
     }
 };

@@ -1,5 +1,6 @@
 import { write } from './write.js';
+import { currentPath } from './handle-current-path.js';
 
-export const showCurrentPath = (currentPath) => {
+export const showCurrentPath = () => {
     write(`You are currently in ${currentPath}`);
 };

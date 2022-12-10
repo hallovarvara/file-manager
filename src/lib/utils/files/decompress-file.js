@@ -16,7 +16,7 @@ export const decompressFile = ({ currentPath, filename, newFilename }) => {
             error: {
                 message: `Pass a correct filenames after "compress" command`,
             },
-            currentPath,
+            showCurrentPath: true,
         });
         return;
     }
@@ -35,7 +35,7 @@ export const decompressFile = ({ currentPath, filename, newFilename }) => {
                         error: {
                             message: `File "${newFilename}" already exists. Pass other filename for compressed file`,
                         },
-                        currentPath,
+                        showCurrentPath: true,
                     });
                 },
                 () => {
@@ -47,15 +47,15 @@ export const decompressFile = ({ currentPath, filename, newFilename }) => {
                             if (error) {
                                 throwError({
                                     isOperationFailed: true,
+                                    showCurrentPath: true,
                                     error,
-                                    currentPath,
                                 });
                             } else {
                                 write(
                                     `File "${filename}" was successfully decompressed to "${newFilename}"`,
                                 );
 
-                                showCurrentPath(currentPath);
+                                showCurrentPath();
                             }
                         },
                     );
@@ -63,7 +63,7 @@ export const decompressFile = ({ currentPath, filename, newFilename }) => {
             );
         },
         () => {
-            throwErrorNoFile({ path: filePath, currentPath });
+            throwErrorNoFile({ path: filePath, showCurrentPath: true });
         },
     );
 };

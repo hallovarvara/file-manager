@@ -16,7 +16,7 @@ export const calculateFileHash = async ({ currentPath, filename }) => {
             error: {
                 message: `Pass correct filename after "hash" command`,
             },
-            currentPath,
+            showCurrentPath: true,
         });
 
         return;
@@ -33,13 +33,11 @@ export const calculateFileHash = async ({ currentPath, filename }) => {
                     const hex = hashSum.digest('hex');
                     write(`Hex of "${filename}" file is "${hex}"`);
                 },
-                () => {
-                    showCurrentPath(currentPath);
-                },
+                showCurrentPath,
             );
         },
         () => {
-            throwErrorNoFile({ path: filePath, currentPath });
+            throwErrorNoFile({ path: filePath, showCurrentPath: true });
         },
     );
 };

@@ -21,6 +21,7 @@ export const copyFile = async ({
         throwError({
             isOperationFailed: true,
             error: { message: 'Pass correct file path' },
+            showCurrentPath: true,
         });
         return;
     }
@@ -41,25 +42,25 @@ export const copyFile = async ({
                                 error: {
                                     message: `File "${filename}" already exists in directory "${newDirectory}"`,
                                 },
-                                currentPath,
+                                showCurrentPath: true,
                             });
                         },
                         () => {
                             handleCopyFile({
                                 filePath,
                                 newFilePath,
-                                callback: (err) => {
-                                    if (err) {
+                                callback: (error) => {
+                                    if (error) {
                                         throwError({
                                             isOperationFailed: true,
-                                            error: err,
+                                            error,
                                         });
                                     } else {
                                         write(
                                             `File "${filename}" was successfully copied to "${newDirectory}" folder`,
                                         );
 
-                                        showCurrentPath(currentPath);
+                                        showCurrentPath();
                                     }
                                 },
                             });
@@ -79,7 +80,7 @@ export const copyFile = async ({
                         newDirectory || ''
                     }" passed. Pass correct directory name`,
                 },
-                currentPath,
+                showCurrentPath: true,
             });
         },
         true,

@@ -1,11 +1,10 @@
 import { Transform } from 'stream';
 import { exit } from './exit.js';
 import { help } from './help.js';
-import { goUpAndGetPath } from './go-up-and-get-path.js';
+import { executeUp } from './execute-up.js';
 import { getDirectoryContentList } from './get-directory-content-list.js';
-import { goToPath } from './go-to-path.js';
+import { executeCd } from './execute-cd.js';
 import { throwError } from '../lib/utils/throw-error.js';
-import { showCurrentPath } from '../lib/utils/show-current-path.js';
 import { read } from './files/read.js';
 import { add } from './files/add.js';
 import { rename } from './files/rename.js';
@@ -16,9 +15,7 @@ import { hash } from './files/hash.js';
 import { compress } from './files/compress.js';
 import { decompress } from './files/decompress.js';
 import { executeOsFunctionByArgument } from './execute-os-function-by-argument.js';
-import { STOP_COMMAND, HOME_DIRECTORY } from '../lib/constants/index.js';
-
-let currentPath = HOME_DIRECTORY;
+import { STOP_COMMAND } from '../lib/constants/index.js';
 
 export const executeCommandStream = new Transform({
     async transform(chunk, encoding, callback) {
@@ -27,36 +24,35 @@ export const executeCommandStream = new Transform({
         if (command === STOP_COMMAND) {
             exit();
         } else if (command === 'help' || command === '.help') {
-            help(currentPath);
+            help();
         } else if (command === 'up') {
-            currentPath = goUpAndGetPath(currentPath);
+            executeUp();
         } else if (command === 'ls') {
-            await getDirectoryContentList(currentPath);
+            await getDirectoryContentList();
         } else if (command.startsWith('cd')) {
-            currentPath = goToPath({ command, currentPath });
+            executeCd(command);
         } else if (command.startsWith('cat')) {
-            await read(command, currentPath);
+            await read(command);
         } else if (command.startsWith('add')) {
-            await add(command, currentPath);
+            await add(command);
         } else if (command.startsWith('rn')) {
-            await rename(command, currentPath);
+            await rename(command);
         } else if (command.startsWith('cp')) {
-            await copy(command, currentPath);
+            await copy(command);
         } else if (command.startsWith('mv')) {
-            await move(command, currentPath);
+            await move(command);
         } else if (command.startsWith('rm')) {
-            await remove(command, currentPath);
+            await remove(command);
         } else if (command.startsWith('os')) {
-            await executeOsFunctionByArgument(command, currentPath);
+            await executeOsFunctionByArgument(command);
         } else if (command.startsWith('hash')) {
-            await hash(command, currentPath);
+            await hash(command);
         } else if (command.startsWith('compress')) {
-            await compress(command, currentPath);
+            await compress(command);
         } else if (command.startsWith('decompress')) {
-            await decompress(command, currentPath);
+            await decompress(command);
         } else {
-            throwError({ isInputInvalid: true });
-            showCurrentPath(currentPath);
+            throwError({ isInputInvalid: true, showCurrentPath: true });
         }
 
         callback();

@@ -4,8 +4,8 @@ import { throwError } from '../throw-error.js';
 export const handleFileData = (filePath, onData, onEnd) => {
     const readableStream = createReadStream(filePath);
 
-    readableStream.on('error', function (readErr) {
-        throwError({ isOperationFailed: true, error: readErr });
+    readableStream.on('error', function (error) {
+        throwError({ isOperationFailed: true, error });
     });
 
     readableStream.on('data', (chunk) => {

@@ -1,7 +1,8 @@
 import { getCommandAttributes } from '../../lib/utils/get-command-attributes.js';
 import { renameFile } from '../../lib/utils/files/rename-file.js';
+import { currentPath } from '../../lib/utils/handle-current-path.js';
 
-export const rename = async (command, currentPath) => {
+export const rename = async (command) => {
     const [, filename = '', newFilename = ''] = getCommandAttributes(command);
     await renameFile({ directory: currentPath, filename, newFilename });
 };

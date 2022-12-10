@@ -5,7 +5,7 @@ import { showCurrentPath } from '../lib/utils/show-current-path.js';
 import { exit } from './exit.js';
 import { write } from '../lib/utils/write.js';
 import { throwError } from '../lib/utils/throw-error.js';
-import { STOP_COMMAND, HOME_DIRECTORY } from '../lib/constants/index.js';
+import { STOP_COMMAND } from '../lib/constants/index.js';
 
 export const initFileManager = async () => {
     const readable = process.stdin;
@@ -13,7 +13,7 @@ export const initFileManager = async () => {
 
     welcomeUser();
 
-    showCurrentPath(HOME_DIRECTORY);
+    showCurrentPath();
 
     write(`If you would like to exit, press "Ctrl + C" or type "${STOP_COMMAND}" on a new line and press Enter
 Type "help" or ".help" to get commands list

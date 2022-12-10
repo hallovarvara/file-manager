@@ -42,7 +42,7 @@ export const moveFile = async ({
                                 error: {
                                     message: `File "${filename}" already exists in directory "${newDirectory}"`,
                                 },
-                                currentPath,
+                                showCurrentPath: true,
                             });
                         },
                         () => {
@@ -70,7 +70,7 @@ export const moveFile = async ({
                                                 `File "${filename}" was successfully moved to "${newDirectory}" folder`,
                                             );
 
-                                            showCurrentPath(currentPath);
+                                            showCurrentPath();
                                         });
                                     }
                                 },
@@ -91,7 +91,7 @@ export const moveFile = async ({
                         newDirectory || ''
                     }" passed. Pass correct directory name`,
                 },
-                currentPath,
+                showCurrentPath: true,
             });
         },
         true,

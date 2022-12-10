@@ -19,7 +19,7 @@ export const removeFile = async ({
                     throwError({
                         isOperationFailed: true,
                         error: unlinkErr,
-                        currentPath,
+                        showCurrentPath: true,
                     });
 
                     return;
@@ -27,7 +27,7 @@ export const removeFile = async ({
 
                 write(`File "${filePath}" was successfully removed`);
 
-                showCurrentPath(currentPath);
+                showCurrentPath();
             });
         },
         () => {
@@ -36,7 +36,7 @@ export const removeFile = async ({
                 error: {
                     message: `No file found by path "${filePath}"`,
                 },
-                currentPath,
+                showCurrentPath: true,
             });
         },
     );

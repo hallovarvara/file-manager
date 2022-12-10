@@ -1,13 +1,9 @@
 import { resolve } from 'path';
-import { existsSync } from 'fs';
 import { throwError } from './throw-error.js';
 import { isString } from './is-string.js';
+import { currentPath } from './handle-current-path.js';
 
-export const resolvePathWithExistenceCheck = (
-    currentPath = '',
-    newPart = '',
-    isAbsolute = false,
-) => {
+export const getNewPath = (newPart = '', isAbsolute = false) => {
     let newPath = currentPath;
 
     if (!isAbsolute) {
@@ -25,9 +21,11 @@ export const resolvePathWithExistenceCheck = (
         newPath = newPart;
     }
 
-    if (!existsSync(newPath) || newPath.length < 1) {
-        throwError({ isOperationFailed: true });
-        return currentPath;
+    if (newPath.length < 1) {
+        throwError({
+            isOperationFailed: true,
+            error: { message: 'Empty string is not valid path' },
+        });
     }
 
     return newPath;

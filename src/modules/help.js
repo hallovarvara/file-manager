@@ -8,7 +8,7 @@ class Record {
     }
 }
 
-export const help = (currentPath) => {
+export const help = () => {
     const helpData = {};
 
     helpData.start = new Record(
@@ -92,5 +92,5 @@ export const help = (currentPath) => {
 
     console.table(helpData);
 
-    showCurrentPath(currentPath);
+    showCurrentPath();
 };
