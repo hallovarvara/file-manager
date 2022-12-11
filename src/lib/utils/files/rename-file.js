@@ -25,10 +25,10 @@ export const renameFile = async ({
     if (!filenameRaw || !newFilenameRaw) {
         throwError({
             isOperationFailed: true,
+            showCurrentPath: true,
             error: {
                 message: `Please, pass "filename" and "newFilename" in command in this format:${EOL}rn filename newFilename`,
             },
-            showCurrentPath: true,
         });
         return;
     }
