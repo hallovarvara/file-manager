@@ -5,7 +5,8 @@ import { showCurrentPath } from '../lib/utils/show-current-path.js';
 import { exit } from './exit.js';
 import { write } from '../lib/utils/write.js';
 import { throwError } from '../lib/utils/throw-error.js';
-import { STOP_COMMAND } from '../lib/constants/index.js';
+import { HELP_COMMAND_MESSAGE } from '../lib/constants/index.js';
+import { COMMAND_EXIT } from '../lib/constants/commands.js';
 
 export const initFileManager = async () => {
     const readingLine = readline.createInterface({
@@ -15,16 +16,14 @@ export const initFileManager = async () => {
 
     welcomeUser();
 
-    write(`If you would like to exit, press "Ctrl + C" or type "${STOP_COMMAND}" on a new line and press Enter
-Type "help" or ".help" to get commands list`);
+    write(`If you would like to exit, press "Ctrl + C" or type "${COMMAND_EXIT}" on a new line and press Enter
+${HELP_COMMAND_MESSAGE}`);
 
     showCurrentPath();
 
     readingLine
         .on('line', async (line) => {
-            const command = line.toString().trim();
-            // const [command, ...args] = lineToString.split(' ');
-            await executeCommandStream(command);
+            await executeCommandStream(line.toString().trim());
         })
         .on('error', (error) => {
             throwError({ error, showCurrentPath: true });

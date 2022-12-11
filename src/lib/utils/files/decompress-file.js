@@ -13,10 +13,10 @@ export const decompressFile = ({ currentPath, filename, newFilename }) => {
     if (!isString(filename) || !isString(newFilename)) {
         throwError({
             isOperationFailed: true,
-            error: {
-                message: `Pass a correct filenames after "compress" command`,
-            },
             showCurrentPath: true,
+            error: {
+                message: `Pass a correct filenames after "decompress" command`,
+            },
         });
         return;
     }

@@ -7,16 +7,23 @@ import { resolvePath } from '../resolve-path.js';
 import { handleFileData } from './handle-file-data.js';
 import { throwErrorNoFile } from './throw-error-no-file.js';
 
+const calculateHash = (data = '') => {
+    const hashSum = createHash('sha256');
+    hashSum.update(data);
+    return hashSum.digest('hex');
+};
+
 export const calculateFileHash = async ({ currentPath, filename }) => {
     const filePath = resolvePath(currentPath, filename);
+    let isData = false;
 
     if (filePath === currentPath) {
         throwError({
             isOperationFailed: true,
+            showCurrentPath: true,
             error: {
                 message: `Pass correct filename after "hash" command`,
             },
-            showCurrentPath: true,
         });
 
         return;
@@ -28,12 +35,19 @@ export const calculateFileHash = async ({ currentPath, filename }) => {
             handleFileData(
                 filePath,
                 (data) => {
-                    const hashSum = createHash('sha256');
-                    hashSum.update(data);
-                    const hex = hashSum.digest('hex');
+                    const hex = calculateHash(data);
                     write(`Hex of "${filename}" file is "${hex}"`);
+                    isData = true;
                 },
-                showCurrentPath,
+                () => {
+                    if (!isData) {
+                        write(
+                            `Hex of "${filename}" file is "${calculateHash()}"`,
+                        );
+                    }
+
+                    showCurrentPath();
+                },
             );
         },
         () => {

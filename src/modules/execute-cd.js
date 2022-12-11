@@ -1,17 +1,21 @@
 import { isAbsolute } from 'path';
 import { stat } from 'fs';
-import { getCommandAttributes } from '../lib/utils/get-command-attributes.js';
 import { getNewPath } from '../lib/utils/get-new-path.js';
-import { write } from '../lib/utils/write.js';
 import { removeQuotesFromPath } from '../lib/utils/remove-quotes-from-path.js';
 import { throwError } from '../lib/utils/throw-error.js';
+import { getNoDirectoryMessage } from '../lib/utils/get-no-directory-message.js';
 import { setCurrentPath } from '../lib/utils/handle-current-path.js';
 import { showCurrentPath } from '../lib/utils/show-current-path.js';
 import { IS_MAC_OS } from '../lib/constants/index.js';
 import { currentPath } from '../lib/utils/handle-current-path.js';
 
-export const executeCd = (command) => {
-    const [, pathAdditionRaw] = getCommandAttributes(command);
+import {
+    ERROR_INCORRECT_PATH,
+    ERROR_ROOT_DIRECTORY,
+} from '../lib/constants/errors.js';
+
+export const executeCd = (args) => {
+    const [pathAdditionRaw] = args;
     const pathAddition = removeQuotesFromPath(pathAdditionRaw);
 
     const isWindowsDiskPassed =
@@ -22,14 +26,27 @@ export const executeCd = (command) => {
         isAbsolute(pathAddition) || isWindowsDiskPassed,
     );
 
-    if (currentPath === newPath) {
-        write(
-            pathAddition === '..' || pathAddition === '../'
-                ? 'No way back, you are in root directory'
-                : 'Type correct path after "cd" command',
-        );
+    if (!newPath) {
+        throwError({
+            isInputInvalid: true,
+            showCurrentPath: true,
+            error: { message: ERROR_INCORRECT_PATH },
+        });
 
-        showCurrentPath();
+        return;
+    }
+
+    if (currentPath.toLowerCase() === newPath.toLowerCase()) {
+        throwError({
+            isOperationFailed: true,
+            showCurrentPath: true,
+            error: {
+                message:
+                    pathAddition === '..' || pathAddition === '../'
+                        ? ERROR_ROOT_DIRECTORY
+                        : ERROR_INCORRECT_PATH,
+            },
+        });
 
         return;
     }
@@ -41,7 +58,7 @@ export const executeCd = (command) => {
                 path: newPath,
                 error: !!error
                     ? error
-                    : { message: `"${newPath}" is not directory` },
+                    : { message: getNoDirectoryMessage(newPath) },
                 showCurrentPath: true,
             });
         } else {

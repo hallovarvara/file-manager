@@ -1,8 +1,8 @@
+import { sep } from 'path';
 import { unlink } from 'fs';
 import { throwError } from '../throw-error.js';
 import { isString } from '../is-string.js';
 import { write } from '../write.js';
-import { removeQuotesFromPath } from '../remove-quotes-from-path.js';
 import { showCurrentPath } from '../show-current-path.js';
 import { handleCopyFile } from './handle-copy-file.js';
 import { resolvePath } from '../resolve-path.js';
@@ -11,10 +11,9 @@ import { checkFileExist } from './check-file-exist.js';
 
 export const moveFile = async ({
     currentPath = '',
-    filename: filenameRaw = '',
+    filename,
     newDirectoryName = '',
 }) => {
-    const filename = removeQuotesFromPath(filenameRaw);
     const filePath = resolvePath(currentPath, filename);
     const newDirectory = resolvePath(currentPath, newDirectoryName);
 
@@ -32,17 +31,18 @@ export const moveFile = async ({
             checkFileExist(
                 filePath,
                 () => {
-                    const newFilePath = resolvePath(newDirectory, filename);
+                    const filenameOnly = filename.split(sep).pop();
+                    const newFilePath = resolvePath(newDirectory, filenameOnly);
 
                     checkFileExist(
                         newFilePath,
                         () => {
                             throwError({
                                 isOperationFailed: true,
+                                showCurrentPath: true,
                                 error: {
                                     message: `File "${filename}" already exists in directory "${newDirectory}"`,
                                 },
-                                showCurrentPath: true,
                             });
                         },
                         () => {
@@ -78,8 +78,8 @@ export const moveFile = async ({
                         },
                     );
                 },
-                () => {
-                    throwErrorNoFile({ path: filename });
+                ({ error }) => {
+                    throwErrorNoFile({ path: filename, error });
                 },
             );
         },

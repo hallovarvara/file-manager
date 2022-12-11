@@ -10,9 +10,9 @@ export const getCpusInfo = () => {
     const fullInfo = CPUInfo.reduce((resultString, { model, speed }, index) => {
         return (
             resultString +
-            `\n${index + 1}) Model "${model}", it's clock rate is ${
+            `\n${index + 1}) Model "${model}", clock rate is ${
                 speed / coefficient
-            } GHZ`
+            } GHz`
         );
     }, generalInfoString);
 

@@ -1,12 +1,5 @@
 import { isString } from './is-string.js';
-
-const quotes = [
-    { left: `'` },
-    { left: '"' },
-    { left: '„', right: '“' },
-    { left: '«', right: '»' },
-    { left: '`' },
-];
+import { QUOTES } from '../constants/quotes.js';
 
 export const removeQuotesFromPath = (path) => {
     if (!isString(path) || path === '') {
@@ -15,7 +8,7 @@ export const removeQuotesFromPath = (path) => {
 
     const trimmedPath = path.trim();
 
-    const hasQuotes = quotes.some(
+    const hasQuotes = QUOTES.some(
         ({ left, right }) =>
             path.startsWith(left) && path.endsWith(right || left),
     );

@@ -1,5 +1,5 @@
-import { STOP_COMMAND } from '../lib/constants/index.js';
 import { showCurrentPath } from '../lib/utils/show-current-path.js';
+import { COMMAND_EXIT } from '../lib/constants/commands.js';
 
 class Record {
     constructor(command, description) {
@@ -17,7 +17,7 @@ export const help = () => {
     );
 
     helpData.exit = new Record(
-        `${STOP_COMMAND} or Ctrl/Cmd+C`,
+        `${COMMAND_EXIT} or Ctrl/Cmd+C`,
         'Exit the application',
     );
 

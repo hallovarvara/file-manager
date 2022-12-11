@@ -14,7 +14,7 @@ export const checkFileExist = (
     try {
         stat(path, (error, stats) => {
             if (error || (isDirectory ? stats.isFile() : !stats.isFile())) {
-                onNotExist?.({ path, stats });
+                onNotExist?.({ error, path, stats });
             } else {
                 onExist?.({ path, stats });
             }

@@ -16,7 +16,7 @@ export const createFile = async ({ directory, filename: filenameRaw }) => {
             throwError({
                 isOperationFailed: true,
                 error: {
-                    message: `File "${filename}" already exists in directory "${directory}"`,
+                    message: `File "${filename}" already exists`,
                 },
                 showCurrentPath: true,
             });
@@ -24,7 +24,13 @@ export const createFile = async ({ directory, filename: filenameRaw }) => {
         () => {
             writeFile(filePath, '', { encoding: 'utf-8' }, (error) => {
                 if (error) {
-                    throwError({ isOperationFailed: true, error });
+                    throwError({
+                        isOperationFailed: true,
+                        showCurrentPath: true,
+                        error,
+                    });
+
+                    return;
                 }
 
                 write(

@@ -1,8 +1,7 @@
-import { getCommandAttributes } from '../../lib/utils/get-command-attributes.js';
 import { decompressFile } from '../../lib/utils/files/decompress-file.js';
 import { currentPath } from '../../lib/utils/handle-current-path.js';
 
-export const decompress = async (command) => {
-    const [, filename = '', newFilename = ''] = getCommandAttributes(command);
+export const decompress = async (args) => {
+    const [filename = '', newFilename = ''] = args;
     await decompressFile({ currentPath, filename, newFilename });
 };
