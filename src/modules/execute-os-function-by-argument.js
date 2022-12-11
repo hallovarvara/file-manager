@@ -8,7 +8,7 @@ import { showCurrentPath } from '../lib/utils/show-current-path.js';
 import { ERROR_INCORRECT_ARGUMENT } from '../lib/constants/errors.js';
 
 export const executeOsFunctionByArgument = (args) => {
-    switch (args[0].toLowerCase()) {
+    switch (args[0]?.toLowerCase()) {
         case '--eol':
             getEolInfo();
             break;
