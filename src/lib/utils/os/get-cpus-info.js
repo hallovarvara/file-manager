@@ -1,4 +1,4 @@
-import { cpus } from 'os';
+import { cpus, EOL } from 'os';
 import { write } from '../write.js';
 import { IS_MAC_OS } from '../../constants/index.js';
 
@@ -10,7 +10,7 @@ export const getCpusInfo = () => {
     const fullInfo = CPUInfo.reduce((resultString, { model, speed }, index) => {
         return (
             resultString +
-            `\n${index + 1}) Model "${model}", clock rate is ${
+            `${EOL}${index + 1}) Model "${model}", clock rate is ${
                 speed / coefficient
             } GHz`
         );

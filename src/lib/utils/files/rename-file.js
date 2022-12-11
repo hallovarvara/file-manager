@@ -1,3 +1,4 @@
+import { EOL } from 'os';
 import { rename } from 'fs';
 import { throwError } from '../throw-error.js';
 import { write } from '../write.js';
@@ -25,8 +26,7 @@ export const renameFile = async ({
         throwError({
             isOperationFailed: true,
             error: {
-                message:
-                    'Please, pass "filename" and "newFilename" in command in this format:\nrn filename newFilename',
+                message: `Please, pass "filename" and "newFilename" in command in this format:${EOL}rn filename newFilename`,
             },
             showCurrentPath: true,
         });
