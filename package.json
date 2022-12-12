@@ -1,20 +1,24 @@
 {
-  "name": "file-manager",
-  "version": "1.0.0",
-  "description": "This repository is the part of nodejs-assignments https://github.com/AlreadyBored/nodejs-assignments",
-  "type": "module",
-  "scripts": {
-    "start": "node src/index.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:hallovarvara/file-manager.git"
-  },
-  "keywords": ["nodejs", "file manager", "hallovarvara"],
-  "author": "Varya Deviaterikova <hallovarvara@gmail.com>",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/hallovarvara/file-manager/issues"
-  },
-  "homepage": "https://github.com/hallovarvara/file-manager#readme"
+    "name": "file-manager",
+    "version": "1.0.0",
+    "description": "File manager in Cli",
+    "type": "module",
+    "scripts": {
+        "start": "node src/index.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:hallovarvara/file-manager.git"
+    },
+    "keywords": [
+        "nodejs",
+        "file manager",
+        "hallovarvara"
+    ],
+    "author": "Varya Deviaterikova <hallovarvara@gmail.com>",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/hallovarvara/file-manager/issues"
+    },
+    "homepage": "https://github.com/hallovarvara/file-manager#readme"
 }
