@@ -8,6 +8,7 @@ import { resolvePath } from '../resolve-path.js';
 import { checkFileExist } from './check-file-exist.js';
 import { showCurrentPath } from '../show-current-path.js';
 import { write } from '../write.js';
+import { CONSOLE_COLOR } from '../../constants/colors.js';
 
 export const compressFile = ({ currentPath, filename, newFilename }) => {
     if (!isString(filename) || !isString(newFilename)) {
@@ -53,6 +54,7 @@ export const compressFile = ({ currentPath, filename, newFilename }) => {
                             } else {
                                 write(
                                     `File "${filename}" was successfully compressed to "${newFilename}"`,
+                                    CONSOLE_COLOR.GREEN,
                                 );
 
                                 showCurrentPath();

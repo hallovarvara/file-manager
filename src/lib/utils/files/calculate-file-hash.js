@@ -6,6 +6,7 @@ import { checkFileExist } from './check-file-exist.js';
 import { resolvePath } from '../resolve-path.js';
 import { handleFileData } from './handle-file-data.js';
 import { throwErrorNoFile } from './throw-error-no-file.js';
+import { CONSOLE_COLOR } from '../../constants/colors.js';
 
 const calculateHash = (data = '') => {
     const hashSum = createHash('sha256');
@@ -36,13 +37,17 @@ export const calculateFileHash = async ({ currentPath, filename }) => {
                 filePath,
                 (data) => {
                     const hex = calculateHash(data);
-                    write(`Hex of "${filename}" file is "${hex}"`);
+                    write(
+                        `Hex of "${filename}" file is "${hex}"`,
+                        CONSOLE_COLOR.GREEN,
+                    );
                     isData = true;
                 },
                 () => {
                     if (!isData) {
                         write(
                             `Hex of "${filename}" file is "${calculateHash()}"`,
+                            CONSOLE_COLOR.GREEN,
                         );
                     }
 

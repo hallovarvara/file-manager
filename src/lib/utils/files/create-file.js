@@ -5,6 +5,7 @@ import { removeQuotesFromPath } from '../remove-quotes-from-path.js';
 import { showCurrentPath } from '../show-current-path.js';
 import { resolvePath } from '../resolve-path.js';
 import { checkFileExist } from './check-file-exist.js';
+import { CONSOLE_COLOR } from '../../constants/colors.js';
 
 export const createFile = async ({ directory, filename: filenameRaw }) => {
     const filename = removeQuotesFromPath(filenameRaw);
@@ -35,6 +36,7 @@ export const createFile = async ({ directory, filename: filenameRaw }) => {
 
                 write(
                     `File "${filename}" was successfully created in "${directory}" directory`,
+                    CONSOLE_COLOR.GREEN,
                 );
 
                 showCurrentPath();

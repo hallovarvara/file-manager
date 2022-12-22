@@ -7,6 +7,7 @@ import { handleCopyFile } from './handle-copy-file.js';
 import { resolvePath } from '../resolve-path.js';
 import { throwErrorNoFile } from './throw-error-no-file.js';
 import { checkFileExist } from './check-file-exist.js';
+import { CONSOLE_COLOR } from '../../constants/colors.js';
 
 export const copyFile = async ({
     currentPath = '',
@@ -58,6 +59,7 @@ export const copyFile = async ({
                                     } else {
                                         write(
                                             `File "${filename}" was successfully copied to "${newDirectory}" folder`,
+                                            CONSOLE_COLOR.GREEN,
                                         );
 
                                         showCurrentPath();
