@@ -7,6 +7,7 @@ import { resolvePath } from '../resolve-path.js';
 import { showCurrentPath } from '../show-current-path.js';
 import { checkFileExist } from './check-file-exist.js';
 import { throwErrorNoFile } from './throw-error-no-file.js';
+import { CONSOLE_COLOR } from '../../constants/colors.js';
 
 export const renameFile = async ({
     directory,
@@ -66,6 +67,7 @@ export const renameFile = async ({
 
                         write(
                             `File "${filename}" was successfully renamed to "${newFilename}"`,
+                            CONSOLE_COLOR.GREEN,
                         );
 
                         showCurrentPath();
