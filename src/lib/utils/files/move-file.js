@@ -1,4 +1,3 @@
-import { sep } from 'path';
 import { unlink } from 'fs';
 import { throwError } from '../throw-error.js';
 import { isString } from '../is-string.js';
@@ -8,6 +7,9 @@ import { handleCopyFile } from './handle-copy-file.js';
 import { resolvePath } from '../resolve-path.js';
 import { throwErrorNoFile } from './throw-error-no-file.js';
 import { checkFileExist } from './check-file-exist.js';
+import { getPathParts } from '../get-path-parts.js';
+import { CONSOLE_COLOR } from '../../constants/colors.js';
+import { ERROR_INCORRECT_PATH } from '../../constants/errors.js';
 
 export const moveFile = async ({
     currentPath = '',
@@ -31,7 +33,20 @@ export const moveFile = async ({
             checkFileExist(
                 filePath,
                 () => {
-                    const filenameOnly = filename.split(sep).pop();
+                    const pathParts = getPathParts(filename);
+
+                    if (!Array.isArray(pathParts) || pathParts.length === 0) {
+                        throwError({
+                            isInputInvalid: true,
+                            showCurrentPath: true,
+                            error: {
+                                message: ERROR_INCORRECT_PATH,
+                            },
+                        });
+                        return;
+                    }
+
+                    const filenameOnly = pathParts.pop();
                     const newFilePath = resolvePath(newDirectory, filenameOnly);
 
                     checkFileExist(
@@ -68,6 +83,7 @@ export const moveFile = async ({
 
                                             write(
                                                 `File "${filename}" was successfully moved to "${newDirectory}" folder`,
+                                                CONSOLE_COLOR.GREEN,
                                             );
 
                                             showCurrentPath();
