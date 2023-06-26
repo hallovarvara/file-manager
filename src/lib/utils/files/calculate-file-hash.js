@@ -1,22 +1,16 @@
 import { createHash } from 'crypto';
+import { isAbsolute } from 'path';
+import { stat } from 'fs/promises';
 import { throwError } from '../throw-error.js';
-import { write } from '../write.js';
-import { showCurrentPath } from '../show-current-path.js';
-import { checkFileExist } from './check-file-exist.js';
 import { resolvePath } from '../resolve-path.js';
 import { handleFileData } from './handle-file-data.js';
 import { throwErrorNoFile } from './throw-error-no-file.js';
-import { CONSOLE_COLOR } from '../../constants/colors.js';
-
-const calculateHash = (data = '') => {
-    const hashSum = createHash('sha256');
-    hashSum.update(data);
-    return hashSum.digest('hex');
-};
+import { writeSuccessMessage } from '../write-success-message.js';
 
 export const calculateFileHash = async ({ currentPath, filename }) => {
-    const filePath = resolvePath(currentPath, filename);
-    let isData = false;
+    const filePath = isAbsolute(filename)
+        ? filename
+        : resolvePath(currentPath, filename);
 
     if (filePath === currentPath) {
         throwError({
@@ -30,33 +24,27 @@ export const calculateFileHash = async ({ currentPath, filename }) => {
         return;
     }
 
-    checkFileExist(
-        filePath,
-        () => {
-            handleFileData(
-                filePath,
-                (data) => {
-                    const hex = calculateHash(data);
-                    write(
-                        `Hex of "${filename}" file is "${hex}"`,
-                        CONSOLE_COLOR.GREEN,
-                    );
-                    isData = true;
-                },
-                () => {
-                    if (!isData) {
-                        write(
-                            `Hex of "${filename}" file is "${calculateHash()}"`,
-                            CONSOLE_COLOR.GREEN,
-                        );
-                    }
+    try {
+        await stat(filePath);
+    } catch {
+        throwErrorNoFile({ path: filePath, showCurrentPath: true });
+        return;
+    }
 
-                    showCurrentPath();
-                },
-            );
+    let fileData = '';
+
+    handleFileData(
+        filePath,
+        (data) => {
+            fileData = data;
         },
         () => {
-            throwErrorNoFile({ path: filePath, showCurrentPath: true });
+            const hashSum = createHash('sha256');
+            hashSum.update(fileData);
+
+            writeSuccessMessage(
+                `Hash of "${filename}" is "${hashSum.digest('hex')}"`,
+            );
         },
     );
 };

@@ -1,13 +1,10 @@
 import { EOL } from 'os';
-import { rename } from 'fs';
+import { rename, stat } from 'fs/promises';
 import { throwError } from '../throw-error.js';
-import { write } from '../write.js';
 import { removeQuotesFromPath } from '../remove-quotes-from-path.js';
 import { resolvePath } from '../resolve-path.js';
-import { showCurrentPath } from '../show-current-path.js';
-import { checkFileExist } from './check-file-exist.js';
 import { throwErrorNoFile } from './throw-error-no-file.js';
-import { CONSOLE_COLOR } from '../../constants/colors.js';
+import { writeSuccessMessage } from '../write-success-message.js';
 
 export const renameFile = async ({
     directory,
@@ -38,45 +35,39 @@ export const renameFile = async ({
     const newFilename = removeQuotesFromPath(newFilenameRaw);
     const filePath = resolvePath(directory, filename);
 
-    checkFileExist(
-        filePath,
-        () => {
-            const newFilePath = resolvePath(directory, newFilename);
+    try {
+        await stat(filePath);
+    } catch (err) {
+        throwErrorNoFile({ path: filePath });
 
-            checkFileExist(
-                newFilePath,
-                () => {
-                    throwError({
-                        isOperationFailed: true,
-                        error: {
-                            message: `File "${newFilename}" already exists in directory "${directory}"`,
-                        },
-                        showCurrentPath: true,
-                    });
-                },
-                () => {
-                    rename(filePath, newFilePath, (error) => {
-                        if (error) {
-                            throwError({
-                                isOperationFailed: true,
-                                showCurrentPath: true,
-                                error,
-                            });
-                            return;
-                        }
+        return;
+    }
 
-                        write(
-                            `File "${filename}" was successfully renamed to "${newFilename}"`,
-                            CONSOLE_COLOR.GREEN,
-                        );
+    const newFilePath = resolvePath(directory, newFilename);
 
-                        showCurrentPath();
-                    });
-                },
+    try {
+        await stat(newFilePath);
+
+        throwError({
+            isOperationFailed: true,
+            error: {
+                message: `"${newFilename}" already exists in directory "${directory}"`,
+            },
+            showCurrentPath: true,
+        });
+    } catch {
+        try {
+            await rename(filePath, newFilePath);
+
+            writeSuccessMessage(
+                `File "${filename}" was successfully renamed to "${newFilename}"`,
             );
-        },
-        () => {
-            throwErrorNoFile({ path: filePath });
-        },
-    );
+        } catch (renameError) {
+            throwError({
+                isOperationFailed: true,
+                showCurrentPath: true,
+                error: renameError,
+            });
+        }
+    }
 };

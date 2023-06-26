@@ -1,22 +1,38 @@
 import { throwError } from '../throw-error.js';
+import { stat, unlink } from 'fs/promises';
+import { isAbsolute, sep } from 'path';
 import { isString } from '../is-string.js';
-import { write } from '../write.js';
 import { removeQuotesFromPath } from '../remove-quotes-from-path.js';
-import { showCurrentPath } from '../show-current-path.js';
 import { handleCopyFile } from './handle-copy-file.js';
 import { resolvePath } from '../resolve-path.js';
 import { throwErrorNoFile } from './throw-error-no-file.js';
-import { checkFileExist } from './check-file-exist.js';
-import { CONSOLE_COLOR } from '../../constants/colors.js';
+import { writeSuccessMessage } from '../write-success-message.js';
 
 export const copyFile = async ({
     currentPath = '',
     filename: filenameRaw = '',
     newDirectoryName = '',
+    shouldDeleteSource,
 }) => {
-    const filename = removeQuotesFromPath(filenameRaw);
-    const filePath = resolvePath(currentPath, filename);
-    const newDirectory = resolvePath(currentPath, newDirectoryName);
+    const filenameNoQuotes = removeQuotesFromPath(filenameRaw);
+
+    const isFilenameAbsolute = isAbsolute(filenameNoQuotes);
+
+    const filename =
+        isFilenameAbsolute || filenameNoQuotes.includes(sep)
+            ? filenameNoQuotes.split(sep).pop()
+            : filenameNoQuotes;
+
+    const filePath = isFilenameAbsolute
+        ? filenameNoQuotes
+        : resolvePath(
+              currentPath,
+              filenameNoQuotes.includes(sep) ? filenameNoQuotes : filename,
+          );
+
+    const newDirectory = isAbsolute(newDirectoryName)
+        ? newDirectoryName
+        : resolvePath(currentPath, newDirectoryName);
 
     if (!isString(filePath) || filename === '') {
         throwError({
@@ -24,67 +40,75 @@ export const copyFile = async ({
             error: { message: 'Pass correct file path' },
             showCurrentPath: true,
         });
+
         return;
     }
 
-    checkFileExist(
-        newDirectory,
-        () => {
-            checkFileExist(
-                filePath,
-                () => {
-                    const newFilePath = resolvePath(newDirectory, filename);
+    try {
+        await stat(newDirectory);
+    } catch {
+        throwError({
+            isOperationFailed: true,
+            error: {
+                message: `Incorrect directory name "${
+                    newDirectory || ''
+                }" passed. Pass correct directory name`,
+            },
+            showCurrentPath: true,
+        });
 
-                    checkFileExist(
-                        newFilePath,
-                        () => {
-                            throwError({
-                                isOperationFailed: true,
-                                error: {
-                                    message: `File "${filename}" already exists in directory "${newDirectory}"`,
-                                },
-                                showCurrentPath: true,
-                            });
-                        },
-                        () => {
-                            handleCopyFile({
-                                filePath,
-                                newFilePath,
-                                callback: (error) => {
-                                    if (error) {
-                                        throwError({
-                                            isOperationFailed: true,
-                                            error,
-                                        });
-                                    } else {
-                                        write(
-                                            `File "${filename}" was successfully copied to "${newDirectory}" folder`,
-                                            CONSOLE_COLOR.GREEN,
-                                        );
+        return;
+    }
 
-                                        showCurrentPath();
-                                    }
-                                },
-                            });
-                        },
+    try {
+        await stat(filePath);
+    } catch {
+        throwErrorNoFile({ path: filename });
+
+        return;
+    }
+
+    const newFilePath = resolvePath(newDirectory, filename);
+
+    try {
+        await stat(newFilePath);
+
+        throwError({
+            isOperationFailed: true,
+            error: {
+                message: `"${filename}" already exists in directory "${newDirectory}"`,
+            },
+            showCurrentPath: true,
+        });
+    } catch {
+        handleCopyFile({
+            filePath,
+            newFilePath,
+            callback: async (error) => {
+                if (error) {
+                    throwError({
+                        isOperationFailed: true,
+                        error,
+                    });
+                } else if (shouldDeleteSource) {
+                    try {
+                        await unlink(filePath);
+
+                        writeSuccessMessage(
+                            `File "${filename}" was successfully moved to "${newDirectory}" folder`,
+                        );
+                    } catch (deleteError) {
+                        throwError({
+                            isOperationFailed: true,
+                            error: deleteError,
+                        });
+                    }
+                } else {
+                    writeSuccessMessage(
+                        `File "${filename}" was successfully copied to "${newDirectory}" folder`,
                     );
-                },
-                () => {
-                    throwErrorNoFile({ path: filename });
-                },
-            );
-        },
-        () => {
-            throwError({
-                isOperationFailed: true,
-                error: {
-                    message: `Incorrect directory name "${
-                        newDirectory || ''
-                    }" passed. Pass correct directory name`,
-                },
-                showCurrentPath: true,
-            });
-        },
-        true,
-    );
+                }
+            },
+        });
+    }
 };

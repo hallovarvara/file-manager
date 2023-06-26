@@ -1,21 +1,26 @@
 import { pipeline } from 'stream';
 import { createReadStream, createWriteStream } from 'fs';
-import { createBrotliCompress } from 'zlib';
+import { readdir, stat } from 'fs/promises';
+import { createBrotliCompress, createBrotliDecompress } from 'zlib';
 import { isString } from '../is-string.js';
 import { throwError } from '../throw-error.js';
 import { throwErrorNoFile } from './throw-error-no-file.js';
 import { resolvePath } from '../resolve-path.js';
-import { checkFileExist } from './check-file-exist.js';
-import { showCurrentPath } from '../show-current-path.js';
-import { write } from '../write.js';
-import { CONSOLE_COLOR } from '../../constants/colors.js';
+import { writeSuccessMessage } from '../write-success-message.js';
 
-export const compressFile = ({ currentPath, filename, newFilename }) => {
+export const compressFile = async ({
+    currentPath,
+    filename,
+    newFilename,
+    shouldDecompress,
+}) => {
+    const commandName = shouldDecompress ? 'decompress' : 'compress';
+
     if (!isString(filename) || !isString(newFilename)) {
         throwError({
             isOperationFailed: true,
             error: {
-                message: `Pass a correct filenames after "compress" command`,
+                message: `Pass a correct filename after ${commandName} command`,
             },
             showCurrentPath: true,
         });
@@ -23,49 +28,60 @@ export const compressFile = ({ currentPath, filename, newFilename }) => {
     }
 
     const filePath = resolvePath(currentPath, filename);
-    const newFilePath = resolvePath(currentPath, newFilename);
 
-    checkFileExist(
-        filePath,
-        () => {
-            checkFileExist(
-                newFilePath,
-                () => {
-                    throwError({
-                        isOperationFailed: true,
-                        error: {
-                            message: `File "${newFilename}" already exists. Pass other filename for compressed file`,
-                        },
-                        showCurrentPath: true,
-                    });
-                },
-                () => {
-                    pipeline(
-                        createReadStream(filePath),
-                        createBrotliCompress(),
-                        createWriteStream(newFilePath),
-                        (error) => {
-                            if (error) {
-                                throwError({
-                                    isOperationFailed: true,
-                                    showCurrentPath: true,
-                                    error,
-                                });
-                            } else {
-                                write(
-                                    `File "${filename}" was successfully compressed to "${newFilename}"`,
-                                    CONSOLE_COLOR.GREEN,
-                                );
+    try {
+        await stat(filePath);
+    } catch {
+        throwErrorNoFile({ path: filePath, showCurrentPath: true });
+        return;
+    }
 
-                                showCurrentPath();
-                            }
-                        },
-                    );
+    let newFilePath = resolvePath(currentPath, newFilename);
+
+    try {
+        await readdir(newFilePath);
+
+        throwError({
+            isOperationFailed: true,
+            error: {
+                message: `Path "${newFilename}" ends with a directory name. Specify a file name at the end of this path for successful ${commandName}ion`,
+            },
+            showCurrentPath: true,
+        });
+
+        return;
+    } catch {
+        try {
+            await stat(newFilePath);
+
+            throwError({
+                isOperationFailed: true,
+                error: {
+                    message: `File "${newFilename}" already exists. Pass other filename for ${commandName} command`,
                 },
-            );
-        },
-        () => {
-            throwErrorNoFile({ path: filePath, showCurrentPath: true });
+                showCurrentPath: true,
+            });
+
+            return;
+        } catch {}
+    }
+
+    pipeline(
+        createReadStream(filePath),
+        (shouldDecompress ? createBrotliDecompress : createBrotliCompress)(),
+        createWriteStream(newFilePath),
+        (error) => {
+            if (error) {
+                throwError({
+                    isOperationFailed: true,
+                    showCurrentPath: true,
+                    error,
+                });
+            } else {
+                writeSuccessMessage(
+                    `File "${filename}" was successfully ${commandName}ed to "${newFilename}"`,
+                );
+            }
         },
     );
 };
