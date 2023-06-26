@@ -15,7 +15,6 @@ import {
     ERROR_INCORRECT_PATH,
     ERROR_ROOT_DIRECTORY,
 } from '../lib/constants/errors.js';
-import { write } from '../lib/utils/write.js';
 
 export const executeCd = (args) => {
     const [pathAdditionRaw] = args;
