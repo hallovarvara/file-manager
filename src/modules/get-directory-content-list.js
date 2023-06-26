@@ -1,8 +1,12 @@
+import { EOL } from 'os';
 import { readdir } from 'fs';
 import { throwError } from '../lib/utils/throw-error.js';
 import { sortRecordsAlphabetically } from '../lib/utils/sort-records-alphabetically.js';
 import { showCurrentPath } from '../lib/utils/show-current-path.js';
 import { getCurrentPath } from '../lib/utils/handle-current-path.js';
+import { write } from '../lib/utils/write.js';
+import { COMMAND_LS } from '../lib/constants/commands.js';
+import { CONSOLE_COLOR } from '../lib/constants/colors.js';
 
 class Record {
     constructor(name, type) {
@@ -11,7 +15,16 @@ class Record {
     }
 }
 
-export const getDirectoryContentList = () => {
+const writeArgumentsRedundancyMessage = (args) => {
+    if (args.length > 0) {
+        write(
+            `${EOL}Psst... There is no need to specify arguments after "${COMMAND_LS}" command`,
+            CONSOLE_COLOR.GREY,
+        );
+    }
+};
+
+export const getDirectoryContentList = (args) => {
     readdir(
         getCurrentPath(),
         { withFileTypes: true },
@@ -27,9 +40,12 @@ export const getDirectoryContentList = () => {
             }
 
             if (entities?.length === 0) {
+                writeArgumentsRedundancyMessage(args);
+
                 throwError({
                     error: { message: `Folder "${getCurrentPath()}" is empty` },
                     showCurrentPath: true,
+                    isOneLessIndentBefore: args.length > 0,
                 });
             } else {
                 const files = [];
@@ -50,6 +66,8 @@ export const getDirectoryContentList = () => {
                     ...sortRecordsAlphabetically(directories, 'Name'),
                     ...sortRecordsAlphabetically(files, 'Name'),
                 ]);
+
+                writeArgumentsRedundancyMessage(args);
 
                 showCurrentPath();
             }

@@ -9,6 +9,7 @@ export const throwError = ({
     isInputInvalid,
     error,
     showCurrentPath: shouldShowCurrentPath,
+    isOneLessIndentBefore,
 } = undefined) => {
     let errorMessage = error?.message ? '' : 'Unknown error';
 
@@ -17,15 +18,17 @@ export const throwError = ({
     }
 
     if (isInputInvalid) {
-        errorMessage = `${EOL}Invalid input`;
+        errorMessage = `${isOneLessIndentBefore ? '' : EOL}Invalid input`;
     }
 
     if (error?.message) {
-        errorMessage += `${EOL}${error.message}`;
+        errorMessage += `${isOneLessIndentBefore ? '' : EOL}${error.message}`;
     }
 
     if (isInputInvalid) {
-        errorMessage += `${EOL}${EOL}${HELP_COMMAND_MESSAGE}`;
+        errorMessage += `${
+            isOneLessIndentBefore ? '' : EOL
+        }${EOL}${HELP_COMMAND_MESSAGE}`;
     }
 
     write(errorMessage, CONSOLE_COLOR.RED);

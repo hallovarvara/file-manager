@@ -16,23 +16,17 @@ export const copyFile = async ({
 }) => {
     const filenameNoQuotes = removeQuotesFromPath(filenameRaw);
 
-    const isFilenameAbsolute = isAbsolute(filenameNoQuotes);
-
     const filename =
-        isFilenameAbsolute || filenameNoQuotes.includes(sep)
+        isAbsolute(filenameNoQuotes) || filenameNoQuotes.includes(sep)
             ? filenameNoQuotes.split(sep).pop()
             : filenameNoQuotes;
 
-    const filePath = isFilenameAbsolute
-        ? filenameNoQuotes
-        : resolvePath(
-              currentPath,
-              filenameNoQuotes.includes(sep) ? filenameNoQuotes : filename,
-          );
+    const filePath = resolvePath(
+        currentPath,
+        filenameNoQuotes.includes(sep) ? filenameNoQuotes : filename,
+    );
 
-    const newDirectory = isAbsolute(newDirectoryName)
-        ? newDirectoryName
-        : resolvePath(currentPath, newDirectoryName);
+    const newDirectory = resolvePath(currentPath, newDirectoryName);
 
     if (!isString(filePath) || filename === '') {
         throwError({

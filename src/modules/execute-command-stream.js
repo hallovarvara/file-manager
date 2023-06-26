@@ -52,7 +52,7 @@ export const executeCommandStream = async (userInput) => {
             executeCd(args);
             break;
         case COMMAND_LS:
-            getDirectoryContentList();
+            getDirectoryContentList(args);
             break;
         case COMMAND_CAT:
             await read(args);
