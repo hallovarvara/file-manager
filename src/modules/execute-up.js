@@ -6,7 +6,7 @@ import { getNoDirectoryMessage } from '../lib/utils/get-no-directory-message.js'
 import { ERROR_ROOT_DIRECTORY } from '../lib/constants/errors.js';
 
 import {
-    currentPath,
+    getCurrentPath,
     setCurrentPath,
 } from '../lib/utils/handle-current-path.js';
 
@@ -22,9 +22,10 @@ export const executeUp = (args) => {
     }
 
     const newPart = '..';
+
     const newPath = getNewPath(newPart);
 
-    if (currentPath === newPath) {
+    if (getCurrentPath().toLowerCase() === newPath.toLowerCase()) {
         throwError({
             isOperationFailed: true,
             showCurrentPath: true,

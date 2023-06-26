@@ -9,8 +9,7 @@ export const removeQuotesFromPath = (path) => {
     const trimmedPath = path.trim();
 
     const hasQuotes = QUOTES.some(
-        ({ left, right }) =>
-            path.startsWith(left) && path.endsWith(right || left),
+        ({ left, right }) => path.startsWith(left) && path.endsWith(right),
     );
 
     const normalisedPath = hasQuotes ? trimmedPath.slice(1, -1) : trimmedPath;

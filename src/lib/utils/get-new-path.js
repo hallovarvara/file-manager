@@ -1,26 +1,25 @@
 import { resolve } from 'path';
 import { isString } from './is-string.js';
-import { currentPath } from './handle-current-path.js';
+import { getCurrentPath } from './handle-current-path.js';
 import { sep } from 'path';
-import { throwError } from './throw-error.js';
 
 export const getNewPath = (newPart = '', isAbsolute = false) => {
-    let newPath = currentPath;
+    let newPath = getCurrentPath();
 
     if (!isAbsolute) {
-        const isCurrentPathIncorrect = !isString(currentPath);
+        const isCurrentPathIncorrect = !isString(getCurrentPath());
 
         if (isCurrentPathIncorrect || !isString(newPart)) {
-            return isCurrentPathIncorrect ? '' : currentPath;
+            return isCurrentPathIncorrect ? '' : getCurrentPath();
         }
 
-        newPath = resolve(currentPath, newPart);
+        newPath = resolve(getCurrentPath(), newPart);
     } else {
         newPath = newPart;
     }
 
     if (newPath.replaceAll(sep, '') === '') {
-        return '';
+        return `${sep}`;
     }
 
     return newPath.length > 1 && newPath[newPath.length - 1] === sep

@@ -4,15 +4,18 @@ import { getNewPath } from '../lib/utils/get-new-path.js';
 import { removeQuotesFromPath } from '../lib/utils/remove-quotes-from-path.js';
 import { throwError } from '../lib/utils/throw-error.js';
 import { getNoDirectoryMessage } from '../lib/utils/get-no-directory-message.js';
-import { setCurrentPath } from '../lib/utils/handle-current-path.js';
+import {
+    getCurrentPath,
+    setCurrentPath,
+} from '../lib/utils/handle-current-path.js';
 import { showCurrentPath } from '../lib/utils/show-current-path.js';
 import { IS_MAC_OS } from '../lib/constants/index.js';
-import { currentPath } from '../lib/utils/handle-current-path.js';
 
 import {
     ERROR_INCORRECT_PATH,
     ERROR_ROOT_DIRECTORY,
 } from '../lib/constants/errors.js';
+import { write } from '../lib/utils/write.js';
 
 export const executeCd = (args) => {
     const [pathAdditionRaw] = args;
@@ -36,13 +39,15 @@ export const executeCd = (args) => {
         return;
     }
 
-    if (currentPath.toLowerCase() === newPath.toLowerCase()) {
+    if (getCurrentPath().toLowerCase() === newPath.toLowerCase()) {
         throwError({
             isOperationFailed: true,
             showCurrentPath: true,
             error: {
                 message:
-                    pathAddition === '..' || pathAddition === '../'
+                    pathAddition === '..' ||
+                    pathAddition === '../' ||
+                    pathAddition === '..\\'
                         ? ERROR_ROOT_DIRECTORY
                         : ERROR_INCORRECT_PATH,
             },
